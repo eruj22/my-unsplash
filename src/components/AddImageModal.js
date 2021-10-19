@@ -1,13 +1,33 @@
-import React from "react"
+import React, { useState } from "react"
 import ModalUnstyled from "@mui/core/ModalUnstyled"
 import { Box } from "@mui/system"
 import styled from "styled-components"
 import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
+import axios from "axios"
 
 function AddImageModal({ setOpenModal, openModal }) {
+  const [description, setDescription] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
+  const postImages = "http://localhost:5000/images"
+
   const formSubmit = (e) => {
     e.preventDefault()
+
+    if (imageUrl === "" || description === "") {
+      return
+    }
+
+    axios
+      .post(postImages, {
+        image: imageUrl,
+        description,
+      })
+      .catch((err) => console.log(err))
+
+    setDescription("")
+    setImageUrl("")
+    setOpenModal(false)
   }
 
   const closeAddImageModal = () => setOpenModal(false)
@@ -28,9 +48,18 @@ function AddImageModal({ setOpenModal, openModal }) {
             variant="outlined"
             id="description"
             placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
           <label htmlFor="photoUrl">Photo URL</label>
-          <TextField variant="outlined" id="photoUrl" placeholder="Photo URL" />
+          <TextField
+            variant="outlined"
+            id="photoUrl"
+            name="image"
+            placeholder="Photo URL"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
           <div className="form__buttons">
             <Button
               variant="text"
@@ -42,6 +71,7 @@ function AddImageModal({ setOpenModal, openModal }) {
             <Button
               variant="contained"
               className="submitBtn"
+              type="submit"
               onClick={formSubmit}
             >
               Submit
