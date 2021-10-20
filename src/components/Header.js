@@ -5,15 +5,31 @@ import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
 import SearchIcon from "@mui/icons-material/Search"
 import AddImageModal from "./AddImageModal"
+import MuiAlert from "@mui/material/Alert"
+import Snackbar from "@mui/material/Snackbar"
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
+})
 
 function Header() {
   const [openModal, setOpenModal] = useState(false)
-
+  const [openToast, setOpenToast] = useState(false)
   const openAddImageModal = () => setOpenModal(true)
 
   return (
     <>
       <div className="container">
+        <Snackbar
+          open={openToast}
+          autoHideDuration={3000}
+          onClose={() => setOpenToast(false)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="success" sx={{ width: "100%" }}>
+            Successfully added new photo!
+          </Alert>
+        </Snackbar>
         <Wrapper>
           <div className="logo">
             <img src={logo} alt="my beautiful unsplash logo" />
@@ -33,7 +49,11 @@ function Header() {
           </div>
         </Wrapper>
       </div>
-      <AddImageModal setOpenModal={setOpenModal} openModal={openModal} />
+      <AddImageModal
+        setOpenModal={setOpenModal}
+        openModal={openModal}
+        setOpenToast={setOpenToast}
+      />
     </>
   )
 }
@@ -44,6 +64,13 @@ const Wrapper = styled.header`
   align-items: center;
   padding: 1rem 0;
   margin-bottom: 4rem;
+
+  .alert {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* transform: translateY(-100%); */
+  }
 
   .logo {
     display: flex;

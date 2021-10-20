@@ -1,34 +1,27 @@
-import React, { useState } from "react"
+import React from "react"
 import ModalUnstyled from "@mui/core/ModalUnstyled"
 import { Box } from "@mui/system"
 import styled from "styled-components"
 import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
 import axios from "axios"
+import { Formik, Field, Form } from "formik"
+import * as yup from "yup"
 
-function AddImageModal({ setOpenModal, openModal }) {
-  const [description, setDescription] = useState("")
-  const [imageUrl, setImageUrl] = useState("")
+const schema = yup.object({
+  image: yup
+    .string()
+    .required("Enter your image url")
+    .matches(
+      /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[\w]*))?)/,
+      "Enter right url address"
+    )
+    .max(200),
+  description: yup.string().required("Enter image description").max(40),
+})
+
+function AddImageModal({ setOpenModal, openModal, setOpenToast }) {
   const postImages = "http://localhost:5000/images"
-
-  const formSubmit = (e) => {
-    e.preventDefault()
-
-    if (imageUrl === "" || description === "") {
-      return
-    }
-
-    axios
-      .post(postImages, {
-        image: imageUrl,
-        description,
-      })
-      .catch((err) => console.log(err))
-
-    setDescription("")
-    setImageUrl("")
-    setOpenModal(false)
-  }
 
   const closeAddImageModal = () => setOpenModal(false)
 
@@ -42,42 +35,68 @@ function AddImageModal({ setOpenModal, openModal }) {
     >
       <Box sx={style}>
         <h2>Add a new photo</h2>
-        <FormContainer>
-          <label htmlFor="description">Label</label>
-          <TextField
-            variant="outlined"
-            id="description"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <label htmlFor="photoUrl">Photo URL</label>
-          <TextField
-            variant="outlined"
-            id="photoUrl"
-            name="image"
-            placeholder="Photo URL"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
-          <div className="form__buttons">
-            <Button
-              variant="text"
-              className="cancelBtn"
-              onClick={closeAddImageModal}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              className="submitBtn"
-              type="submit"
-              onClick={formSubmit}
-            >
-              Submit
-            </Button>
-          </div>
-        </FormContainer>
+        <Formik
+          initialValues={{ description: "", image: "" }}
+          validationSchema={schema}
+          onSubmit={(values, { setSubmitting, resetForm }) => {
+            setSubmitting(true)
+            axios
+              .post(postImages, {
+                image: values.image,
+                description: values.description,
+              })
+              .catch((err) => console.log(err))
+            setSubmitting(false)
+            resetForm()
+            setOpenModal(false)
+            setOpenToast(true)
+          }}
+        >
+          {(props) => {
+            const { errors, touched } = props
+
+            return (
+              <FormContainer>
+                <Form>
+                  <label htmlFor="description">Label</label>
+                  <Field
+                    id="description"
+                    name="description"
+                    placeholder="Description"
+                    as={TextField}
+                    error={touched.description && !!errors.description}
+                    helperText={!!touched.description ? errors.description : ""}
+                  />
+                  <label htmlFor="photoUrl">Photo URL</label>
+                  <Field
+                    id="image"
+                    name="image"
+                    placeholder="Photo URL"
+                    as={TextField}
+                    error={touched.image && !!errors.image}
+                    helperText={!!touched.image ? errors.image : ""}
+                  />
+                  <div className="form__buttons">
+                    <Button
+                      variant="text"
+                      className="cancelBtn"
+                      onClick={closeAddImageModal}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      className="submitBtn"
+                      type="submit"
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                </Form>
+              </FormContainer>
+            )
+          }}
+        </Formik>
       </Box>
     </StyledModal>
   )
@@ -116,7 +135,7 @@ const style = {
   pb: 4,
 }
 
-const FormContainer = styled.form`
+const FormContainer = styled.div`
   .MuiFormControl-root {
     width: 100%;
     margin-top: 0.5rem;
