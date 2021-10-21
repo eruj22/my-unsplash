@@ -17,10 +17,16 @@ const schema = yup.object({
       "Enter right url address"
     )
     .max(200),
-  description: yup.string().required("Enter image description").max(40),
+  description: yup.string().required("Enter image description").max(70),
 })
 
-function AddImageModal({ setOpenModal, openModal, setOpenToast }) {
+function AddImageModal({
+  setOpenModal,
+  openModal,
+  setOpenToast,
+  setFormChange,
+  formChange,
+}) {
   const postImages = "http://localhost:5000/images"
 
   const closeAddImageModal = () => setOpenModal(false)
@@ -49,6 +55,7 @@ function AddImageModal({ setOpenModal, openModal, setOpenToast }) {
             setSubmitting(false)
             resetForm()
             setOpenModal(false)
+            setFormChange(!formChange)
             setOpenToast(true)
           }}
         >

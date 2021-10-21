@@ -8,13 +8,10 @@ import AddImageModal from "./AddImageModal"
 import MuiAlert from "@mui/material/Alert"
 import Snackbar from "@mui/material/Snackbar"
 
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
-})
-
-function Header() {
+function Header({ formChange, setFormChange, searchField, setSearchField }) {
   const [openModal, setOpenModal] = useState(false)
   const [openToast, setOpenToast] = useState(false)
+
   const openAddImageModal = () => setOpenModal(true)
 
   return (
@@ -26,9 +23,9 @@ function Header() {
           onClose={() => setOpenToast(false)}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <Alert severity="success" sx={{ width: "100%" }}>
+          <MuiAlert severity="success" sx={{ width: "100%" }}>
             Successfully added new photo!
-          </Alert>
+          </MuiAlert>
         </Snackbar>
         <Wrapper>
           <div className="logo">
@@ -40,7 +37,12 @@ function Header() {
           </div>
           <div className="search">
             <SearchIcon />
-            <TextField variant="outlined" placeholder="Search by name" />
+            <TextField
+              variant="outlined"
+              placeholder="Search by description"
+              value={searchField}
+              onChange={(e) => setSearchField(e.target.value)}
+            />
           </div>
           <div className="addPhoto">
             <Button variant="contained" onClick={openAddImageModal}>
@@ -53,6 +55,8 @@ function Header() {
         setOpenModal={setOpenModal}
         openModal={openModal}
         setOpenToast={setOpenToast}
+        setFormChange={setFormChange}
+        formChange={formChange}
       />
     </>
   )
@@ -64,13 +68,6 @@ const Wrapper = styled.header`
   align-items: center;
   padding: 1rem 0;
   margin-bottom: 4rem;
-
-  .alert {
-    position: absolute;
-    top: 0;
-    left: 0;
-    /* transform: translateY(-100%); */
-  }
 
   .logo {
     display: flex;
@@ -105,6 +102,8 @@ const Wrapper = styled.header`
 
   .MuiFormControl-root {
     margin-right: auto;
+    min-width: 220px;
+    width: 25vw;
   }
 
   .MuiOutlinedInput-input {
