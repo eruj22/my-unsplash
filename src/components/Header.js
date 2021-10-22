@@ -123,6 +123,21 @@ const Wrapper = styled.header`
   .MuiButton-root:hover {
     background-color: #629a69;
   }
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    .search {
+      margin: 0;
+      align-self: center;
+    }
+
+    .MuiFormControl-root {
+      width: 50vw;
+    }
+  }
 `
 
 export default Header
